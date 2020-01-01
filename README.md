@@ -123,7 +123,7 @@ error: the server doesn't have a resource type "him"
 
 Customize the HiMessage structure with the kubuilder:resource Marker
 ```
- +kubebuilder:resource:categories=messaging,path=himessages,singular=himessage,shortName=hi;him;himesg
+ \\+kubebuilder:resource:categories=messaging,path=himessages,singular=himessage,shortName=hi;him;himesg
  HiMessage is the Schema for the himessages API
 type HiMessage struct {
 ```
@@ -143,7 +143,7 @@ himessage-sample   25m
 
 Include the following marker to allow only 10 chars max in the Message
 ```
- \\\\+kubebuilder:validation:MaxLength:=10 Message string `json:"message,omitempty"`
+ \\+kubebuilder:validation:MaxLength:=10 Message string `json:"message,omitempty"`
 ```
 Create a YAML resource that violates this constraint
 ```
