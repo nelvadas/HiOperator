@@ -115,7 +115,7 @@ Server
 
 ## CRD Customization
 
-What's if we want our HiMessage instances to be called with the shortname hm/hi/him ?
+What's if we want our HiMessage instances to be called with the shortname `hm/hi/him` ?
 ```
 $ kubectl get him
 error: the server doesn't have a resource type "him"
@@ -143,8 +143,7 @@ himessage-sample   25m
 
 Include the following marker to allow only 10 chars max in the Message
 ```
- +kubebuilder:validation:MaxLength:=10
-	Message string `json:"message,omitempty"`
+ \\\\+kubebuilder:validation:MaxLength:=10 Message string `json:"message,omitempty"`
 ```
 Create a YAML resource that violates this constraint
 ```
