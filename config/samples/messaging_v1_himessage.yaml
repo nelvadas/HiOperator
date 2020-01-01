@@ -1,0 +1,7 @@
+apiVersion: messaging.abyster.com/v1
+kind: HiMessage
+metadata:
+  name: himessage-sample
+spec:
+  message: "Hello World Hello World HelloWorld"
+  image: alpine

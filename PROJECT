@@ -1,0 +1,7 @@
+domain: abyster.com
+repo: github.com/nelvadas/HiOperator
+resources:
+- group: messaging
+  kind: HiMessage
+  version: v1
+version: "2"

@@ -1,0 +1,7 @@
+apiVersion: messaging.abyster.com/v1
+kind: HiMessage
+metadata:
+  name: himessage-sample
+spec:
+  # Add fields here
+  foo: bar
