@@ -143,7 +143,9 @@ himessage-sample   25m
 
 Include the following marker to allow only 10 chars max in the Message
 ```
- //+kubebuilder:validation:MaxLength:=10 Message string `json:"message,omitempty"`
+ //+kubebuilder:validation:MaxLength:=10
+
+ Message string `json:"message,omitempty"`
 ```
 Create a YAML resource that violates this constraint
 ```
@@ -159,4 +161,82 @@ spec:
 $ kubectl apply -f msg_invalidsize.yaml
 The HiMessage "himessage-invalid-size" is invalid: []: Invalid value: map[string]interface {}{"apiVersion":"messaging.abyster.com/v1", "kind":"HiMessage", "metadata":map[string]interface {}{"annotations":map[string]interface {}{"kubectl.kubernetes.io/last-applied-configuration":"{\"apiVersion\":\"messaging.abyster.com/v1\",\"kind\":\"HiMessage\",\"metadata\":{\"annotations\":{},\"name\":\"himessage-invalid-size\",\"namespace\":\"test\"},\"spec\":{\"image\":\"alpine\",\"message\":\"Hello World Hello World HelloWorld\"}}\n"}, "creationTimestamp":"2020-01-01T21:21:56Z", "generation":1, "name":"himessage-invalid-size", "namespace":"test", "uid":"bcff318d-2cdc-11ea-a8e7-0242ac11000a"}, "spec":map[string]interface {}{"image":"alpine", "message":"Hello World Hello World HelloWorld"}}: validation failure list:
 spec.message in body should be at most 10 chars long
+```
+
+## Controller
+The reconcile method in the controller is the location where we need to insert our business logic
+
+### Display image and Message provided in the hiMessage Spec
+The reconciler has a `Get` method to fetch a NamespacedName object from cache.
+
+```
+// 1. Load the Named HiMessage
+	var msg messagingv1.HiMessage
+	if err := r.Get(ctx, req.NamespacedName, &msg); err != nil {
+		logger.Error(err, "Unable to fetch HiMessage")
+		return ctrl.Result{}, err
+	}
+	logger.Info("A new HiMessage Posted:  ", "Message", msg.Spec.Message, "Image", msg.Spec.Image)
+  ```
+
+
+### Print Spec and status details
+
+
+Add a printed status and a printed date to the HiMEssageStatus structure
+```
+// HiMessageStatus defines the observed state of HiMessage
+type HiMessageStatus struct {
+
+	// Printed=True if the message is already printed false otherwise
+	Printed bool `json:"printed"`
+	// PrintedDate: Time elapsed since the message was printed
+	PrintedDate string `json:"printeddate"`
+}
+```
+
+Add the corresponding annotations and provide kubebuilder marker to print these information on top of the hiMessage struct
+
+```
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:categories=messaging,path=himessages,singular=himessage,shortName=hi;him;himesg
+// +kubebuilder:printcolumn:name="Image",type="string",JSONPath=".spec.image",description="Image to Run"
+// +kubebuilder:printcolumn:name="Message",type="string",JSONPath=".spec.message", format=password,description="Message to display"
+// +kubebuilder:printcolumn:name="Printed",type="boolean",JSONPath=".status.printed",description="Printed Status"
+// +kubebuilder:printcolumn:name="PrintedDate",type="date",JSONPath=".status.printeddate",description="Printed Date"
+
+// HiMessage is the Schema for the himessages API
+type HiMessage struct {
+```
+
+Update the controller business logic,
+add a status and a date when the HiMessage is handled.
+
+```
+// 2.  Pod Creation Business Logic TODO
+
+
+	//3. Update the CRD instance status
+	msg.Status.Printed = true
+	msg.Status.PrintedDate = time.Now().Format(time.RFC3339)
+	if err := r.Update(ctx, &msg); err != nil {
+		logger.Error(err, "Unable to update HiMessage")
+		return ctrl.Result{}, err
+```
+
+
+
+reinstall the CRD on the cluster and start a local controller
+```
+$ make install
+$ make run
+```
+
+Check the himessages again 
+
+```
+$ kubectl get hi
+NAME               IMAGE    MESSAGE          PRINTED   PRINTEDDATE
+hi001              nginx    Happy New year   true      51s
+himessage-sample   alpine   Hello World      true      2m31s
 ```

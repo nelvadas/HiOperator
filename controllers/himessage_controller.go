@@ -17,6 +17,7 @@ package controllers
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -35,12 +36,28 @@ type HiMessageReconciler struct {
 
 // +kubebuilder:rbac:groups=messaging.abyster.com,resources=himessages,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=messaging.abyster.com,resources=himessages/status,verbs=get;update;patch
-
+// Reconcileloop
 func (r *HiMessageReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("himessage", req.NamespacedName)
+	ctx := context.Background()
+	logger := r.Log.WithValues("himessage", req.NamespacedName)
 
-	// your logic here
+	// 1. Load the Named HiMessage
+	var msg messagingv1.HiMessage
+	if err := r.Get(ctx, req.NamespacedName, &msg); err != nil {
+		logger.Error(err, "Unable to fetch HiMessage")
+		return ctrl.Result{}, nil
+	}
+	logger.Info("A new HiMessage Posted:  ", "Message", msg.Spec.Message, "Image", msg.Spec.Image)
+
+	// 2.  Pod Creation Business Logic TODO
+
+	//3. Update the CRD instance status
+	msg.Status.Printed = true
+	msg.Status.PrintedDate = time.Now().Format(time.RFC3339)
+	if err := r.Update(ctx, &msg); err != nil {
+		logger.Error(err, "Unable to update HiMessage")
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }

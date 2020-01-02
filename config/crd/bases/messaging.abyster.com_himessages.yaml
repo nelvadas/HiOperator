@@ -8,6 +8,24 @@ metadata:
   creationTimestamp: null
   name: himessages.messaging.abyster.com
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .spec.image
+    description: Image to Run
+    name: Image
+    type: string
+  - JSONPath: .spec.message
+    description: Message to display
+    format: password
+    name: Message
+    type: string
+  - JSONPath: .status.printed
+    description: Printed Status
+    name: Printed
+    type: boolean
+  - JSONPath: .status.printeddate
+    description: Printed Date
+    name: PrintedDate
+    type: date
   group: messaging.abyster.com
   names:
     categories:
@@ -21,6 +39,7 @@ spec:
     - himesg
     singular: himessage
   scope: Namespaced
+  subresources: {}
   validation:
     openAPIV3Schema:
       description: HiMessage is the Schema for the himessages API
@@ -44,11 +63,21 @@ spec:
               type: string
             message:
               description: Message is a Tex to be displayed by HiMessages Pods
-              maxLength: 10
+              maxLength: 160
               type: string
           type: object
         status:
           description: HiMessageStatus defines the observed state of HiMessage
+          properties:
+            printed:
+              description: Printed=True if the message is already printed false otherwise
+              type: boolean
+            printeddate:
+              description: 'PrintedDate: Time elapsed since the message was printed'
+              type: string
+          required:
+          - printed
+          - printeddate
           type: object
       type: object
   version: v1

@@ -24,27 +24,33 @@ import (
 
 // HiMessageSpec defines the desired state of HiMessage
 
-
 type HiMessageSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Message is a Tex to be displayed by HiMessages Pods
-	// +kubebuilder:validation:MaxLength:=10
+	// +kubebuilder:validation:MaxLength:=160
 	Message string `json:"message,omitempty"`
-	
+
 	// Docker image to be runed by the HiMessage Pods
 	Image string `json:"image,omitempty"`
 }
 
 // HiMessageStatus defines the observed state of HiMessage
 type HiMessageStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+
+	// Printed=True if the message is already printed false otherwise
+	Printed bool `json:"printed"`
+	// PrintedDate: Time elapsed since the message was printed
+	PrintedDate string `json:"printeddate"`
 }
 
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:categories=messaging,path=himessages,singular=himessage,shortName=hi;him;himesg
+// +kubebuilder:printcolumn:name="Image",type="string",JSONPath=".spec.image",description="Image to Run"
+// +kubebuilder:printcolumn:name="Message",type="string",JSONPath=".spec.message", format=password,description="Message to display"
+// +kubebuilder:printcolumn:name="Printed",type="boolean",JSONPath=".status.printed",description="Printed Status"
+// +kubebuilder:printcolumn:name="PrintedDate",type="date",JSONPath=".status.printeddate",description="Printed Date"
 
 // HiMessage is the Schema for the himessages API
 type HiMessage struct {

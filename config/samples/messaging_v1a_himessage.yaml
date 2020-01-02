@@ -1,0 +1,7 @@
+apiVersion: messaging.abyster.com/v1
+kind: HiMessage
+metadata:
+  name: hi001
+spec:
+  message: "Happy New year"
+  image: nginx
